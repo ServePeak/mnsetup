@@ -16,8 +16,9 @@ displayErr() {
 output "Created by ServePeak. Used to automatically setup masternodes on daemon end."
 output "Let's begin the install process."
 
-read -e -p "What is the GitHub URL for the coin?: " github
-folder="$(echo $github | cut -d'/' -f5 | cut -d'.' -f 1)"
+read -e -p "What is the URL for the coin daemon files?: " wget
+zip="$(echo $wget | rev | cut -d'/' -f1 | cut -d'.' -f1 | rev)"
+file="$(echo $wget | rev | cut -d'/' -f1 | rev)"
 read -e -p "What is your private key?: " privkey
 initial=$PWD
 
@@ -27,7 +28,7 @@ output "Checking total system memory."
     ram="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
     swap="$(awk '/SwapTotal/ {print $2}' /proc/meminfo)"
     total="$(expr $ram + $swap)"
-    if [ "$total" -le "1572864" ]; then
+    if [ "$total" -le "524288" ]; then
         output "Not enough memory, making swapfile."
             output ""
             sleep 3
@@ -37,11 +38,11 @@ output "Checking total system memory."
             swapon /swapfile
             swap="$(awk '/SwapTotal/ {print $2}' /proc/meminfo)"
             total="$(expr $ram + $swap)"
-            if [ "$total" -le "1572864" ]; then
+            if [ "$total" -le "524288" ]; then
                 read -e -p "Could not allocate swap. Do you want to try and continue anyways? Y/n: " swapcon
                 if [[ ("$swapcon" == "n" || "$swapcon" == "N") ]]; then
                     free -m
-                    output "Requirement: 1500 MB of Mem + Swap."
+                    output "Requirement: 500 MB of Mem + Swap."
                     exit 1
                 fi
             else
@@ -49,7 +50,7 @@ output "Checking total system memory."
             fi
     fi
 
-if [ -z "$(dpkg -l | grep libgmp-dev)" ]; then
+if [ -z "$(dpkg -l | grep libdb4.8++-dev)" ]; then
 
 
 output "Updating and upgrading system."
@@ -64,40 +65,31 @@ output "Installing required packages for daemons."
     output ""
     sleep 3  
 
-    sudo apt-get -y install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
-    sudo apt-get -y install libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev
-    sudo apt-get -y install libboost-all-dev
-    sudo apt-get -y install software-properties-common
-    sudo add-apt-repository -y ppa:bitcoin/bitcoin
-    sudo apt-get update
-    sudo apt-get -y install libdb4.8-dev libdb4.8++-dev
-    sudo apt-get -y install libminiupnpc-dev
-    sudo apt-get -y install libzmq3-dev
-    sudo apt-get -y install libgmp-dev
+    sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev libdb4.8-dev libdb4.8++-dev python-virtualenv nano git unzip tar
 
 fi 
 
-output "Compiling Coin"
+output "Downloading and extracting files"
     output ""
 	sleep 3
-    sudo git clone $github
-    cd $folder
-    sudo chmod -R 777 *
-    cd src
-    if [ -f "makefile.unix" ]; then
-        sudo make -f makefile.unix
-    else
-        cd ..
-        sudo ./autogen.sh
-        sudo ./configure
-        sudo make
-        cd src
+    sudo wget $wget
+    if [[ "$zip" == "gz" ]]; then
+        folder="${file%.tar.gz}"
+        mkdir $folder
+        tar -xzf $file -C $folder
+        cd $folder
+    elif [[ "$zip" == "zip" ]]; then
+        folder="${file%.zip}"
+        mkdir $folder
+        unzip $file -d $folder
+        cd $folder
     fi
+    sudo chmod -R 777 *
     
 output "Setting Up Masternode"
     output ""
 	sleep 3
-    coin="$(find *d ! -name *.*d)"
+    coin="$(find . -name *d ! -name *.*d)"
     location=$PWD
     ./$coin
     pid="pgrep $coin"
@@ -111,11 +103,14 @@ output "Setting Up Masternode"
     echo "rpcuser=servepeaku" >> $config
 	echo "rpcpassword=servepeakp" >> $config
     echo "rpcallowip=127.0.0.1" >> $config
+    echo "" >> $config
     echo "listen=1" >> $config
     echo "server=1" >> $config
     echo "daemon=1" >> $config
+    echo "" >> $config
 	echo "logtimestamps=1" >> $config
 	echo "maxconnections=256" >> $config
+    echo "" >> $config
 	echo "masternode=1" >> $config
 	echo "externalip=${ip}" >> $config
     echo "bind=${ip}" >> $config

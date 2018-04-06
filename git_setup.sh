@@ -16,8 +16,8 @@ displayErr() {
 output "Created by ServePeak. Used to automatically setup masternodes on daemon end."
 output "Let's begin the install process."
 
-read -e -p "What is the GitHub URL for the coin?: " github
-folder="$(echo $github | cut -d'/' -f5 | cut -d'.' -f 1)"
+read -e -p "What is the GitHub URL for the coin source code?: " github
+folder="$(echo $github | rev | cut -d'/' -f1 | rev | cut -d'.' -f 1)"
 read -e -p "What is your private key?: " privkey
 initial=$PWD
 
