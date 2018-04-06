@@ -11,7 +11,7 @@ Te bash scripts will go through the setup process to create the masternode coin 
 6. Pulls from github and compiles coin.
 7. Sets up the coin daemon conf file.
 
-### wget_setup.sh - TODO
+### wget_setup.sh
 ###### Run this if you already have the daemon files
 1. Asks for zip or tar url. 
 If the files are already extracted into the current directory, leave this blank.
