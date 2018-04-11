@@ -65,7 +65,10 @@ output "Installing required packages for daemons."
     output ""
     sleep 3  
 
-    sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev libdb4.8-dev libdb4.8++-dev python-virtualenv nano git unzip tar
+    sudo apt-get -y install software-properties-common
+    sudo add-apt-repository -y ppa:bitcoin/bitcoin
+    sudo apt-get update
+    sudo apt install -y build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libboost-all-dev libdb4.8-dev libdb4.8++-dev python-virtualenv nano git unzip tar libminiupnpc-dev
 
 fi 
 
