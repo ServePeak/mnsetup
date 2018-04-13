@@ -97,7 +97,7 @@ output "Compiling Coin"
 output "Setting Up Masternode"
     output ""
 	sleep 3
-    coin="$(find *d ! -name *.*d)"
+    coin="$(find *d -prune -type f ! -name *.*d)"
     location=$PWD
     ./$coin
     pid="pgrep $coin"

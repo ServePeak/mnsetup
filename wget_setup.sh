@@ -92,7 +92,7 @@ output "Downloading and extracting files"
 output "Setting Up Masternode"
     output ""
 	sleep 3
-    coin="$(find . -name *d ! -name *.*d)"
+    coin="$(find . -name -prune -type f *d ! -name *.*d)"
     location=$PWD
     ./$coin
     pid="pgrep $coin"
